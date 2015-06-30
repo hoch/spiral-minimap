@@ -1,3 +1,3 @@
-# spiral-waveform
+# spiral-minimap
 
-A Polymer element for rendering audio waveform (Polymer 1.0).
+A Polymer element draws an interactive mini map of AudioBuffer (Polymer 1.0).

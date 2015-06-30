@@ -4,33 +4,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>waveform-renderer Demo</title>
+    <title>waveform-minimap Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../spiral-waveform.html">
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+    <link rel="import" href="../spiral-minimap.html">
   </head>
   <body>
 
-    <spiral-waveform id="renderer"></spiral-waveform>
+    <h1><code>&lt;spiral-minimap&gt;</code></h1>
+
+    <p>Draws the time-domain representation of <code>AudioBuffer</code> which
+      can be navigated by dragging two handles and a region. The region can be
+      translated by dragging the center of the region.</p>
+    <p>This interactive mini map is design to be used with
+      <code>&lt;spiral-waveform&gt;</code>.</p>
+
+    <spiral-minimap id="renderer"></spiral-minimap>
 
     <script>
       var renderer = document.querySelector('#renderer');
-      var context = new OfflineAudioContext(2, 44100 * 5, 44100);
+      var context = new OfflineAudioContext(2, 44100 * 1, 44100);
       var timeout;
-
+      
       function generateBuffer() {
         var osc1 = context.createOscillator();
         var mod = context.createGain();
         var osc2 = context.createOscillator();
 
-        osc1.frequency.value = 33;
-        osc2.frequency.value = 417;
-        mod.gain.value = 1473;
+        osc1.frequency.value = 2;
+        osc2.frequency.value = 33;
+        mod.gain.value = 117;
 
         osc1.connect(mod);
         mod.connect(osc2.frequency);
@@ -39,24 +41,31 @@
         osc2.start();  
       }
 
+      var controller = {
+        postMessage: function (id, type, data) {
+        }
+      };
+
       function resizeToFit() {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        renderer.setSize(width, height);
+        var width = window.innerWidth * 0.75;
+        renderer.setSize(width, 48);
       }
 
       window.addEventListener('WebComponentsReady', function () {
         generateBuffer();
         context.startRendering().then(function (buffer) {
-          renderer.setBuffer(buffer);
+          renderer.setController(controller);
+          renderer.setAudioBuffer(buffer);
+          renderer.setRegion(0.25, 0.3);
           resizeToFit();
         });
       });
-      
+
       window.addEventListener('resize', function () {
         clearTimeout(timeout);
         timeout = setTimeout(resizeToFit, 250);
       });
+
     </script>
 
   </body>
