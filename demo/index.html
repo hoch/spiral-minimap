@@ -4,14 +4,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>Demo - &lt;spiral-minimap&gt;</title>
+    <title>&lt;spiral-minimap&gt; | Spiral UI</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../spiral-minimap.html">
     <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
       .element-info {
         padding: 1.0em;
         margin-bottom: 1.0em;
-        border-top: 1px solid #607D8B;
         box-shadow: 2px 0 5px #607D8B;
         color: #263238;
         background-color: #ECEFF1;
@@ -20,24 +24,41 @@
 
       .element-demo {
         padding: 1.0em;
+        font-family: sans-serif;
+      }
+
+      #dump {
+        padding-top: 1.0em;
       }
     </style>
   </head>
 
-  <body>
+  <body class="fullbleed">
+    <div class="vertical layout fit">
+      <div class="element-info">
 
-    <h1><code>&lt;spiral-minimap&gt;</code></h1>
+        <!-- element description -->
+        <h1><code>&lt;spiral-minimap&gt;</code></h1>
+        <p>Draws the time-domain representation of <code>AudioBuffer</code> which
+          can be navigated by dragging two handles and a region. The region can be
+          translated by dragging the center of the region.</p>
+        <p>This interactive mini map is design to be used with
+          <code>&lt;spiral-waveform&gt;</code>.</p>
 
-    <p>Draws the time-domain representation of <code>AudioBuffer</code> which
-      can be navigated by dragging two handles and a region. The region can be
-      translated by dragging the center of the region.</p>
-    <p>This interactive mini map is design to be used with
-      <code>&lt;spiral-waveform&gt;</code>.</p>
+      </div>
+      <div class="element-demo">
 
-    <spiral-minimap id="renderer"></spiral-minimap>
+        <!-- demo -->
+        <spiral-minimap id="renderer"></spiral-minimap>
+        <div id="dump"></div>
+
+      </div>
+    </div>
 
     <script>
       var renderer = document.querySelector('#renderer');
+      var dump = document.querySelector('#dump');
+
       var context = new OfflineAudioContext(2, 44100 * 1, 44100);
       var timeout;
       
@@ -59,12 +80,14 @@
 
       var controller = {
         postMessage: function (id, type, data) {
+          dump.textContent = id + '::' + type + 
+            ' (' + data.start.toFixed(3) + ', ' + data.end.toFixed(3) + ')';
         }
       };
 
       function resizeToFit() {
-        var width = window.innerWidth * 0.75;
-        renderer.setSize(width, 48);
+        var width = window.innerWidth * 0.8;
+        renderer.setSize(width, 64);
       }
 
       window.addEventListener('WebComponentsReady', function () {
@@ -81,7 +104,6 @@
         clearTimeout(timeout);
         timeout = setTimeout(resizeToFit, 250);
       });
-
     </script>
   </body>
 
