@@ -10,6 +10,8 @@
     "web-components",
     "polymer",
     "audio",
+    "spiral",
+    "web-audio",
     "waveform",
     "time-domain",
     "minimap"
