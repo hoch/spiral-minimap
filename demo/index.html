@@ -49,60 +49,61 @@
       <div class="element-demo">
 
         <!-- demo -->
-        <spiral-minimap id="renderer"></spiral-minimap>
-        <div id="dump"></div>
+        <button onclick="renderAudio()">Render Audio</button>
+        <br><br>
+
+        <spiral-minimap id="eMiniMap"></spiral-minimap>
+        <br>
+
+        <div id="eDump"></div>
 
       </div>
     </div>
 
     <script>
-      var renderer = document.querySelector('#renderer');
-      var dump = document.querySelector('#dump');
-
-      var context = new OfflineAudioContext(2, 44100 * 1, 44100);
-      var timeout;
+      var isReady = false;
       
-      function generateBuffer() {
+      var eMiniMap, eDump;
+
+      var controller = {
+        postMessage: function (id, type, data) {
+          eDump.textContent = id + '::' + type + 
+            ' (' + data.start.toFixed(3) + ', ' + data.end.toFixed(3) + ')';
+        }
+      };
+
+      function renderAudio() {
+        if (!isReady)
+          return;
+
+        var context = new OfflineAudioContext(2, 44100 * 1, 44100);
+
         var osc1 = context.createOscillator();
         var mod = context.createGain();
         var osc2 = context.createOscillator();
 
-        osc1.frequency.value = 2;
-        osc2.frequency.value = 33;
-        mod.gain.value = 117;
+        osc1.frequency.value = 2 * Math.random() + 11;
+        osc2.frequency.value = 59 * Math.random() + 17;
+        mod.gain.value = 317 * Math.random() + 113;
 
         osc1.connect(mod);
         mod.connect(osc2.frequency);
         osc2.connect(context.destination);
         osc1.start();
         osc2.start();  
-      }
 
-      var controller = {
-        postMessage: function (id, type, data) {
-          dump.textContent = id + '::' + type + 
-            ' (' + data.start.toFixed(3) + ', ' + data.end.toFixed(3) + ')';
-        }
-      };
-
-      function resizeToFit() {
-        var width = window.innerWidth * 0.8;
-        renderer.setSize(width, 64);
+        context.startRendering().then(function (buffer) {
+          eMiniMap.setController(controller);
+          eMiniMap.setAudioBuffer(buffer);
+          eMiniMap.setHeight(64);
+          eMiniMap.setRegion(0.1, 0.9);
+        });
       }
 
       window.addEventListener('WebComponentsReady', function () {
-        generateBuffer();
-        context.startRendering().then(function (buffer) {
-          renderer.setController(controller);
-          renderer.setAudioBuffer(buffer);
-          renderer.setRegion(0.25, 0.3);
-          resizeToFit();
-        });
-      });
-
-      window.addEventListener('resize', function () {
-        clearTimeout(timeout);
-        timeout = setTimeout(resizeToFit, 250);
+        eMiniMap = document.querySelector('#eMiniMap');
+        eDump = document.querySelector('#eDump');
+        isReady = true;
       });
     </script>
   </body>
