@@ -29,7 +29,6 @@ Example:
       display: block;
       box-sizing: border-box;
       overflow: hidden;
-      border: 1px solid var(--google-grey-500);
       background-color: var(--google-grey-100);
     }
 
@@ -182,6 +181,11 @@ Example:
       // { CREATE_REGION, MOVE_HANDLE_L, MOVE_HANDLE_R, MOVE_REGION, IDLE }
 
       var pos = event.detail;
+
+      // Pure x, y coordinates should be contained inside the target element
+      // without padding or margin.
+      pos.x = event.detail.sourceEvent.offsetX;
+      pos.y = event.detail.sourceEvent.offsetY;
 
       // Calculate current region area by pixels.
       var needsUpdate = false;
