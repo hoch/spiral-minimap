@@ -27,7 +27,11 @@
         font-family: sans-serif;
       }
 
-      #dump {
+      #eMiniMap {
+        height: 128px;
+      }
+
+      #eDump {
         padding-top: 1.0em;
       }
     </style>
@@ -46,7 +50,7 @@
           <code>&lt;spiral-waveform&gt;</code>.</p>
 
       </div>
-      <div class="element-demo">
+      <div class="element-demo flex">
 
         <!-- demo -->
         <button onclick="renderAudio()">Render Audio</button>
@@ -95,7 +99,6 @@
         context.startRendering().then(function (buffer) {
           eMiniMap.setController(controller);
           eMiniMap.setAudioBuffer(buffer);
-          eMiniMap.setHeight(64);
           eMiniMap.setRegion(0.1, 0.9);
         });
       }

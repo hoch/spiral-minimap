@@ -25,7 +25,7 @@ Example:
 
   <style>
     :host {
-      @apply(--layout);
+      position: relative;
       display: block;
       box-sizing: border-box;
       overflow: hidden;
@@ -33,6 +33,8 @@ Example:
     }
 
     canvas {
+      width: 100%;
+      height: 100%;
       display: block;
     }
   </style>
@@ -107,8 +109,9 @@ Example:
         return;
 
       // Adjust canvas size with the parent node's inner size.
-      this._width = (this.parentNode.clientWidth || this._width);
-      
+      this._width = this.$.canvas.width = this.$.canvas.offsetWidth;
+      this._height = this.$.canvas.height = this.$.canvas.offsetHeight;
+
       // Update the dimension of minimap drawer.
       this._miniMapDrawer.setSize(this._width, this._height);
 
@@ -196,18 +199,17 @@ Example:
       switch(pos.state) {
 
         case 'start':
-          if (handleL - 30 <= pos.x && pos.x <= handleL + 30) {
+          if (handleL - 40 <= pos.x && pos.x <= handleL + 10) {
             this._uiMode = 'MOVE_HANDLE_L';
-          } else if (handleR - 30 <= pos.x && pos.x <= handleR + 30) {
+          } else if (handleR - 10 <= pos.x && pos.x <= handleR + 40) {
             this._uiMode = 'MOVE_HANDLE_R';
-          } else if (handleL + 30 < pos.x && pos.x < handleR - 30) {
+          } else if (handleL + 10 < pos.x && pos.x < handleR - 10) {
             this._uiMode = 'MOVE_REGION';
           } else {
             this._uiMode = 'CREATE_REGION';
-            // TODO:
-            // handleL = pos.x;
-            // handleR = pos.x;
-            // needsUpdate = true;
+            handleL = pos.x;
+            handleR = pos.x;
+            needsUpdate = true;
           }
           break;
 
@@ -215,12 +217,12 @@ Example:
           switch (this._uiMode) {
             case 'MOVE_HANDLE_L':
               handleL += pos.ddx;
-              if (0 <= handleL && handleR - handleL >= 60)
+              if (0 <= handleL)
                 needsUpdate = true;
               break;
             case 'MOVE_HANDLE_R':
               handleR += pos.ddx;
-              if (handleR <= this._width && handleR - handleL >= 60)
+              if (handleR <= this._width)
                 needsUpdate = true;
               break;
             case 'MOVE_REGION':
@@ -230,12 +232,11 @@ Example:
                 needsUpdate = true;
               break;
             case 'CREATE_REGION':
-              // TODO:
-              // if (pos.ddx > 0)
-              //   handleR = pos.x;
-              // else
-              //   handleL = pos.
-              // needsUpdate = true;
+              if (pos.ddx > 0 && pos.x > handleR)
+                handleR = pos.x;
+              else if (pos.ddx < 0 && pos.x < handleL)
+                handleL = pos.x;
+              needsUpdate = true;
               break;
           }
           break;
@@ -275,8 +276,7 @@ Example:
 
     /**
      * Sets the controller object for reporting the local state change.
-     * @param {Object} controller A controller object. This typically is a
-     *                            message router.
+     * @param {Object} controller A controller (message router).
      */
     setController: function (controller) {
       this._controller = controller;
@@ -319,6 +319,17 @@ Example:
 
       this._miniMapDrawer.setRegion(start, end);
       this._updateView();
+    },
+
+    /**
+     * Gets start and end points of user-defined region.
+     * @return {Object} Region start and end points in seconds.
+     */
+    getRegion: function () {
+      if (!this._audioBuffer)
+        return null;
+
+      return this._miniMapDrawer.getRegion();
     }
 
   });
